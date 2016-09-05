@@ -16,6 +16,19 @@ public class BroadcastCountdown extends Service {
 
     private static final String TAG = "BroadcastCountdown";
     public static final String COUNTDOWN = "uk.co.stevegiller.deadmeatgf.hillsprints.countdown";
+    public static final String START_TIME = "startValue";
+    public static final String INTERVAL = "interval";
+    public static final String ANNOUNCE_HALFWAY = "halfway";
+    private static final long DEFAULT_START_TIME = 30000;
+    private static final long DEFAULT_INTERVAL = 1000;
+    private static final boolean DEFAULT_ANNOUNCEMENT = false;
+    public static final String TICK_NOTIFIER = "countdown";
+    public static final String TICK_MESSAGE = "message";
+
+    private long startTime;
+    private long interval;
+    private boolean announceHalfway;
+
     Intent cbi = new Intent(COUNTDOWN);
 
     CountDownTimer cdt = null;
@@ -23,14 +36,31 @@ public class BroadcastCountdown extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        startTime = intent.getLongExtra(START_TIME, DEFAULT_START_TIME);
+        interval = intent.getLongExtra(INTERVAL, DEFAULT_INTERVAL);
+        announceHalfway = intent.getBooleanExtra(ANNOUNCE_HALFWAY, DEFAULT_ANNOUNCEMENT);
 
         Log.i(TAG, "Starting Timer ...");
+        Log.i(TAG, "Counting down from " + startTime + " in " + interval / 1000 + " second intervals.");
+        if (announceHalfway) {
+            Log.i(TAG, "There will be a halfway point announcement.");
+        }
 
-        cdt = new CountDownTimer(30000, 1000) {
+        cdt = new CountDownTimer(startTime, interval) {
             @Override
             public void onTick(long millisUntilFinished) {
                 Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
-                cbi.putExtra("countdown", millisUntilFinished);
+                if (announceHalfway) {
+                    if (millisUntilFinished <= startTime / 2) {
+                        cbi.putExtra(TICK_MESSAGE, "We have reached the halfway point.");
+                        announceHalfway = false;
+                    }
+                }
+                cbi.putExtra(TICK_NOTIFIER, millisUntilFinished);
                 sendBroadcast(cbi);
             }
 
@@ -41,10 +71,6 @@ public class BroadcastCountdown extends Service {
         };
 
         cdt.start();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
 

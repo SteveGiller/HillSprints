@@ -11,11 +11,21 @@ import android.util.Log;
 public class SprintActivity extends Activity {
 
     private static final String TAG = "SprintActivity";
+    private long startTime = 60000;
+    private long interval = 2000;
+    private boolean announce = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sprint);
+
+        Intent countdownTimer = new Intent(this, BroadcastCountdown.class);
+        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
+        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
+        countdownTimer.putExtra(BroadcastCountdown.ANNOUNCE_HALFWAY, announce);
+        startService(countdownTimer);
+        Log.i(TAG, "Started service");
     }
 
     @Override
@@ -60,8 +70,12 @@ public class SprintActivity extends Activity {
 
     private void updateGUI(Intent intent) {
         if (intent.getExtras() != null) {
-            long millisUntilFinished = intent.getLongExtra("countdown", 0);
+            long millisUntilFinished = intent.getLongExtra(BroadcastCountdown.TICK_NOTIFIER, 0);
+            String message = intent.getStringExtra(BroadcastCountdown.TICK_MESSAGE);
             Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
+            if (!message.equals("")) {
+                Log.i(TAG, "We have reached the halfway point.");
+            }
         }
     }
 }
