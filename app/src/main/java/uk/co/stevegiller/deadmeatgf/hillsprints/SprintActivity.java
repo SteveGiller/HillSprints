@@ -21,8 +21,8 @@ public class SprintActivity extends Activity {
         setContentView(R.layout.activity_sprint);
 
         Intent countdownTimer = new Intent(this, BroadcastCountdown.class);
-        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
-        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
+//        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
+//        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
         countdownTimer.putExtra(BroadcastCountdown.ANNOUNCE_HALFWAY, announce);
         startService(countdownTimer);
         Log.i(TAG, "Started service");
@@ -73,7 +73,7 @@ public class SprintActivity extends Activity {
             long millisUntilFinished = intent.getLongExtra(BroadcastCountdown.TICK_NOTIFIER, 0);
             String message = intent.getStringExtra(BroadcastCountdown.TICK_MESSAGE);
             Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
-            if (!message.equals("")) {
+            if (message != null) {
                 Log.i(TAG, "We have reached the halfway point.");
             }
         }
