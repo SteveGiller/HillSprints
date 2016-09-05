@@ -58,9 +58,9 @@ public class BroadcastCountdown extends Service {
                     if (millisUntilFinished <= startTime / 2) {
                         cbi.putExtra(TICK_MESSAGE, "We have reached the halfway point.");
                         announceHalfway = false;
-                    } else {
-                        cbi.removeExtra(TICK_MESSAGE);
                     }
+                } else {
+                    cbi.removeExtra(TICK_MESSAGE);
                 }
                 cbi.putExtra(TICK_NOTIFIER, millisUntilFinished);
                 sendBroadcast(cbi);
