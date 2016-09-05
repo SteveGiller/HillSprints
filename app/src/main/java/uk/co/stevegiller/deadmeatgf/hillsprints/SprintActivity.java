@@ -21,8 +21,8 @@ public class SprintActivity extends Activity {
         setContentView(R.layout.activity_sprint);
 
         Intent countdownTimer = new Intent(this, BroadcastCountdown.class);
-//        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
-//        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
+        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
+        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
         countdownTimer.putExtra(BroadcastCountdown.ANNOUNCE_HALFWAY, announce);
         startService(countdownTimer);
         Log.i(TAG, "Started service");
@@ -49,7 +49,7 @@ public class SprintActivity extends Activity {
             Log.i(TAG, "Unregistered broadcast receiver.");
         } catch (Exception e) {
             // Receiver was probably already stopped by onPause()
-            Log.i(TAG, "Unable to unregister broadcast receiver.");
+            Log.i(TAG, "Unable to unregister broadcast receiver - this was probably already actioned in the onPause() event.");
         }
         super.onStop();
     }
@@ -72,7 +72,7 @@ public class SprintActivity extends Activity {
         if (intent.getExtras() != null) {
             long millisUntilFinished = intent.getLongExtra(BroadcastCountdown.TICK_NOTIFIER, 0);
             String message = intent.getStringExtra(BroadcastCountdown.TICK_MESSAGE);
-            Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
+            Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000 + "[" + millisUntilFinished + "ms]");
             if (message != null) {
                 Log.i(TAG, "We have reached the halfway point.");
             }
