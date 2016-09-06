@@ -24,6 +24,7 @@ public class BroadcastCountdown extends Service {
     private static final boolean DEFAULT_ANNOUNCEMENT = false;
     public static final String TICK_NOTIFIER = "countdown";
     public static final String TICK_MESSAGE = "message";
+    public static final String TICK_SPEECH = "ttsPhrase";
 
     private long startTime;
     private long interval;
@@ -49,6 +50,10 @@ public class BroadcastCountdown extends Service {
         if (announceHalfway) {
             Log.i(TAG, "There will be a halfway point announcement.");
         }
+        cbi.putExtra(TICK_MESSAGE, "Starting Countdown.");
+        cbi.putExtra(TICK_NOTIFIER, startTime / 1000);
+        cbi.putExtra(TICK_SPEECH, "Starting Countdown.");
+        sendBroadcast(cbi);
 
         cdt = new CountDownTimer(startTime, interval) {
             @Override
@@ -58,9 +63,16 @@ public class BroadcastCountdown extends Service {
                     if (millisUntilFinished <= startTime / 2) {
                         cbi.putExtra(TICK_MESSAGE, "We have reached the halfway point.");
                         announceHalfway = false;
+                    } else {
+                        cbi.removeExtra(TICK_MESSAGE);
                     }
                 } else {
                     cbi.removeExtra(TICK_MESSAGE);
+                }
+                if (millisUntilFinished / 1000 <= 5) {
+                    cbi.putExtra(TICK_SPEECH, String.valueOf(millisUntilFinished / 1000));
+                } else {
+                    cbi.removeExtra(TICK_SPEECH);
                 }
                 cbi.putExtra(TICK_NOTIFIER, millisUntilFinished);
                 sendBroadcast(cbi);
@@ -70,6 +82,7 @@ public class BroadcastCountdown extends Service {
             public void onFinish() {
                 Log.i(TAG, "Timer finished.");
                 cbi.putExtra(TICK_MESSAGE, "Countdown completed.");
+                cbi.putExtra(TICK_SPEECH, "Countdown completed.");
                 cbi.putExtra(TICK_NOTIFIER, 0);
                 sendBroadcast(cbi);
             }

@@ -18,8 +18,9 @@ public class SprintActivity extends Activity {
     private long interval = 2000;
     private boolean announce = true;
 
-    private TextView timerText;
     private TextView messageText;
+    private TextView speechText;
+    private TextView timerText;
 
     PowerManager.WakeLock wakeLock;
     PowerManager powerManager;
@@ -29,8 +30,9 @@ public class SprintActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sprint);
 
-        timerText = (TextView) findViewById(R.id.textViewCountdown);
         messageText = (TextView) findViewById(R.id.textViewMessage);
+        speechText = (TextView) findViewById(R.id.textViewSpeechBubble);
+        timerText = (TextView) findViewById(R.id.textViewCountdown);
 
         powerManager = (PowerManager) getSystemService(this.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK);
@@ -73,7 +75,13 @@ public class SprintActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        wakeLock.release();
+        try {
+            Log.i(TAG, "Releasing wakelock.");
+            wakeLock.release();
+        } catch (Exception e) {
+            // Nothing to see here, move along!
+            Log.i(TAG, "Unable to release wakelock. This is probably because the countdown has ended successfully");
+        }
         stopService(new Intent(this, BroadcastCountdown.class));
         Log.i(TAG, "Stopped service.");
         super.onDestroy();
@@ -90,8 +98,14 @@ public class SprintActivity extends Activity {
         if (intent.getExtras() != null) {
             long millisUntilFinished = intent.getLongExtra(BroadcastCountdown.TICK_NOTIFIER, 0);
             String message = intent.getStringExtra(BroadcastCountdown.TICK_MESSAGE);
+            String speech = intent.getStringExtra(BroadcastCountdown.TICK_SPEECH);
             Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000 + "[" + millisUntilFinished + "ms]");
             timerText.setText(String.valueOf(millisUntilFinished / 1000));
+            if (speech == null) {
+                speechText.setText("");
+            } else {
+                speechText.setText(speech);
+            }
             if (message == null) {
                 messageText.setText("");
             } else {
@@ -99,8 +113,12 @@ public class SprintActivity extends Activity {
                 messageText.setText(message);
             }
             if (millisUntilFinished / 1000 == 0) {
-                Log.i(TAG, "Releasing wakelock.");
-                wakeLock.release();
+                try {
+                    Log.i(TAG, "Releasing wakelock.");
+                    wakeLock.release();
+                } catch (Exception e) {
+                    Log.i(TAG, "Could not release wakelock. Not sure why!");
+                }
             }
         }
     }
