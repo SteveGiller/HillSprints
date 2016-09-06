@@ -10,7 +10,7 @@ import android.util.Log;
  * Created by Steve Giller on 05/09/2016.
  * Credit to scottt (http://stackoverflow.com/users/2825864/scottt)
  * via http://stackoverflow.com/questions/22496863/how-to-run-countdowntimer-in-a-service-in-android
- */
+ **/
 
 public class BroadcastCountdown extends Service {
 
@@ -40,7 +40,7 @@ public class BroadcastCountdown extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startTime = intent.getLongExtra(START_TIME, DEFAULT_START_TIME);
+        startTime = intent.getLongExtra(START_TIME, DEFAULT_START_TIME) + 500;
         interval = intent.getLongExtra(INTERVAL, DEFAULT_INTERVAL);
         announceHalfway = intent.getBooleanExtra(ANNOUNCE_HALFWAY, DEFAULT_ANNOUNCEMENT);
 
@@ -69,6 +69,9 @@ public class BroadcastCountdown extends Service {
             @Override
             public void onFinish() {
                 Log.i(TAG, "Timer finished.");
+                cbi.putExtra(TICK_MESSAGE, "Countdown completed.");
+                cbi.putExtra(TICK_NOTIFIER, 0);
+                sendBroadcast(cbi);
             }
         };
 
