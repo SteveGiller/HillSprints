@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Hill Sprints</string>
     <string name="default_text">I like cake!</string>
+    <string name="text_start">Start</string>
 </resources>

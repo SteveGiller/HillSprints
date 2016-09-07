@@ -8,16 +8,19 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class SprintActivity extends Activity {
 
     private static final String TAG = "SprintActivity";
     private static final String WAKELOCK = "wakelock";
-    private long startTime = 60000;
-    private long interval = 2000;
+    private long startTime = 20000;
+    private long interval = 1000;
     private boolean announce = true;
 
+    private Button startButton;
     private TextView messageText;
     private TextView speechText;
     private TextView timerText;
@@ -30,6 +33,7 @@ public class SprintActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sprint);
 
+        startButton = (Button) findViewById(R.id.buttonStartTimer);
         messageText = (TextView) findViewById(R.id.textViewMessage);
         speechText = (TextView) findViewById(R.id.textViewSpeechBubble);
         timerText = (TextView) findViewById(R.id.textViewCountdown);
@@ -37,14 +41,12 @@ public class SprintActivity extends Activity {
         powerManager = (PowerManager) getSystemService(this.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK);
 
-        Intent countdownTimer = new Intent(this, BroadcastCountdown.class);
-//        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
-//        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
-        countdownTimer.putExtra(BroadcastCountdown.ANNOUNCE_HALFWAY, announce);
-        Log.i(TAG, "Acquiring wakelock.");
-        wakeLock.acquire();
-        startService(countdownTimer);
-        Log.i(TAG, "Started service");
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                beginCountdown(startTime, interval, announce);
+            }
+        });
     }
 
     @Override
@@ -93,6 +95,17 @@ public class SprintActivity extends Activity {
             updateGUI(intent);
         }
     };
+
+    private void beginCountdown(long startTime, long interval, boolean announce) {
+        Intent countdownTimer = new Intent(this, BroadcastCountdown.class);
+        countdownTimer.putExtra(BroadcastCountdown.START_TIME, startTime);
+        countdownTimer.putExtra(BroadcastCountdown.INTERVAL, interval);
+        countdownTimer.putExtra(BroadcastCountdown.ANNOUNCE_HALFWAY, announce);
+        Log.i(TAG, "Acquiring wakelock.");
+        wakeLock.acquire();
+        startService(countdownTimer);
+        Log.i(TAG, "Started service");
+    }
 
     private void updateGUI(Intent intent) {
         if (intent.getExtras() != null) {
